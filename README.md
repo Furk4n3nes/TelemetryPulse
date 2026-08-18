@@ -1,7 +1,5 @@
 # TelemetryPulse
 
-Repository: https://github.com/Furk4n3nes/TelemetryPulse
-
 Bu proje, Forza Horizon 6 tarafından yayınlanan UDP telemetri paketlerini yakalayan, ayrıştıran ve terminalde temel telemetri bilgilerini gösteren küçük bir Python prototipidir. Aşağıda projenin amaçları, mimarisi, kullanılan teknolojiler, dosya yapısı, çalışma ve geliştirme rehberi ile dikkat edilmesi gereken noktalar ayrıntılı şekilde anlatılmaktadır.
 
 ## Özet
