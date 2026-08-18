@@ -1,0 +1,87 @@
+Not: Bu dosya ham UDP verisini okuyup TelemetryData nesnesine dönüştürür. Paket içindeki alanları sırasıyla parse eder.
+
+Dosya: telemetry/telemetry_parser.py
+
+from telemetry.telemetry_reader import TelemetryReader
+from telemetry.telemetry_data import TelemetryData
+
+
+class TelemetryParser:
+
+    def parse(self, data: bytes) -> TelemetryData:
+
+        r = TelemetryReader(data)
+        t = TelemetryData()
+
+        # ----------------------------
+        # Race
+        # ----------------------------
+
+        t.isRaceOn = r.int32()
+        t.timestamp = r.uint32()
+
+        # ----------------------------
+        # Engine
+        # ----------------------------
+
+        t.engineMaxRPM = r.float()
+        t.engineIdleRPM = r.float()
+        t.currentRPM = r.float()
+
+        # ----------------------------
+        # Acceleration
+        # ----------------------------
+
+        t.accelerationX = r.float()
+        t.accelerationY = r.float()
+        t.accelerationZ = r.float()
+
+        # ----------------------------
+        # Velocity
+        # ----------------------------
+
+        t.velocityX = r.float()
+        t.velocityY = r.float()
+        t.velocityZ = r.float()
+
+        # Hız (m/s -> km/h)
+
+        t.speed = (
+            (
+                t.velocityX ** 2 +
+                t.velocityY ** 2 +
+                t.velocityZ ** 2
+            ) ** 0.5
+        ) * 3.6
+
+        # ----------------------------
+        # Angular Velocity
+        # ----------------------------
+
+        t.angularVelocityX = r.float()
+        t.angularVelocityY = r.float()
+        t.angularVelocityZ = r.float()
+
+        # ----------------------------
+        # Orientation
+        # ----------------------------
+
+        t.yaw = r.float()
+        t.pitch = r.float()
+        t.roll = r.float()
+
+        # ----------------------------
+        # Suspension
+        # ----------------------------
+
+        t.suspensionFL = r.float()
+        t.suspensionFR = r.float()
+        t.suspensionRL = r.float()
+        t.suspensionRR = r.float()
+
+        # ------------------------------------------------
+        # Şimdilik kalan alanları okumuyoruz.
+        # Sonraki adımda devam edeceğiz.
+        # ------------------------------------------------
+
+        return t

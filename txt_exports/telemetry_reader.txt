@@ -1,0 +1,42 @@
+Not: Bu dosya binary telemetri verisini okuma işini kolaylaştırır. struct kütüphanesi ile int, uint ve float değerleri sırayla çözer.
+
+Dosya: telemetry/telemetry_reader.py
+
+import struct
+
+
+class TelemetryReader:
+
+    def __init__(self, data: bytes):
+        self.data = data
+        self.offset = 0
+
+    def int32(self):
+        value = struct.unpack_from("<i", self.data, self.offset)[0]
+        self.offset += 4
+        return value
+
+    def uint32(self):
+        value = struct.unpack_from("<I", self.data, self.offset)[0]
+        self.offset += 4
+        return value
+
+    def uint16(self):
+        value = struct.unpack_from("<H", self.data, self.offset)[0]
+        self.offset += 2
+        return value
+
+    def uint8(self):
+        value = struct.unpack_from("<B", self.data, self.offset)[0]
+        self.offset += 1
+        return value
+
+    def int8(self):
+        value = struct.unpack_from("<b", self.data, self.offset)[0]
+        self.offset += 1
+        return value
+
+    def float(self):
+        value = struct.unpack_from("<f", self.data, self.offset)[0]
+        self.offset += 4
+        return value

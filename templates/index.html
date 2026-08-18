@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forza Horizon - PRO HUD</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: #070709;
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(20, 20, 30, 0.8) 0%, rgba(5, 5, 8, 1) 100%),
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 20px 20px, 20px 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1.2fr 1.5fr 1.2fr;
+            grid-template-rows: auto auto auto;
+            gap: 8px;
+            max-width: 650px;
+            width: 100%;
+        }
+
+        .hud-panel {
+            background: linear-gradient(135deg, #121218 0%, #09090c 100%);
+            border: 2px solid #22222d;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hud-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 5px; height: 5px;
+            border-top: 2px solid #ff0055;
+            border-left: 2px solid #ff0055;
+        }
+        .hud-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0; width: 5px; height: 5px;
+            border-bottom: 2px solid #ff0055;
+            border-right: 2px solid #ff0055;
+        }
+
+        .hud-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: #ff0055;
+            letter-spacing: 1.5px;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        /* 1. Sütun, 1. Satır: Hız */
+        .speed-card {
+            grid-column: 1;
+            grid-row: 1;
+            border-color: #00f0ff;
+        }
+        .speed-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #00f0ff;
+            text-shadow: 0 0 12px rgba(0,240,255,0.4);
+            line-height: 1;
+        }
+        .speed-unit {
+            font-size: 0.65rem;
+            color: #8888a0;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* 2. Sütun, 1-2. Satır (MERKEZ): Vites Göstergesi */
+        .gear-card {
+            grid-column: 2;
+            grid-row: span 2;
+            background: linear-gradient(135deg, #1a0814 0%, #0d040a 100%);
+            border-color: #ff0055;
+            box-shadow: inset 0 0 20px rgba(255,0,85,0.2), 0 0 15px rgba(255,0,85,0.1);
+            transition: all 0.05s ease;
+        }
+
+        .gear-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.8rem;
+            font-weight: 900;
+            color: #ff0055;
+            line-height: 1;
+            text-shadow: 0 0 20px rgba(255,0,85,0.6);
+        }
+
+        /* Redline Yanıp Sönme Efekti */
+        .gear-card.redline-flash {
+            background: #ff0055 !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 30px #ff0055 !important;
+        }
+        .gear-card.redline-flash .gear-display {
+            color: #ffffff !important;
+            text-shadow: 0 0 20px #ffffff;
+        }
+
+        /* 3. Sütun, 1. Satır: Pedallar */
+        .pedal-card {
+            grid-column: 3;
+            grid-row: 1;
+            align-items: stretch;
+            gap: 5px;
+        }
+        .pedal-group {
+            width: 100%;
+        }
+        .pedal-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #a0a0b0;
+            margin-bottom: 2px;
+        }
+        .bar-shell {
+            background: #050508;
+            border: 1px solid #222230;
+            height: 6px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.03s linear;
+        }
+        #accel-fill { background: #00ff66; box-shadow: 0 0 6px rgba(0,255,102,0.5); }
+        #brake-fill { background: #ff2200; box-shadow: 0 0 6px rgba(255,34,0,0.5); }
+
+        /* 1. Sütun, 2. Satır: Lastikler Sol (Ön/Arka Sol) */
+        .tire-left-card {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        /* 3. Sütun, 2. Satır: Lastikler Sağ (Ön/Arka Sağ) */
+        .tire-right-card {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        .tire-split-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            width: 100%;
+            text-align: center;
+        }
+        .tire-box span {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffbb00;
+            margin-top: 1px;
+            text-shadow: 0 0 6px rgba(255,187,0,0.3);
+        }
+
+        /* 3. Satır (Tam Genişlik): Agresif RPM Çubuğu */
+        .rpm-card {
+            grid-column: 1 / span 3;
+            grid-row: 3;
+            align-items: stretch;
+            padding: 10px 12px;
+            border-color: #333344;
+        }
+        .rpm-header {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            color: #8888a0;
+        }
+        .rpm-track {
+            background: #050508;
+            border: 1px solid #252535;
+            height: 16px;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .rpm-progress {
+            height: 100%;
+            width: 0%;
+            transition: width 0.03s linear, background 0.1s linear;
+            background: linear-gradient(90deg, #00ff66, #ffbb00, #ff0055);
+            box-shadow: 0 0 10px rgba(255,0,85,0.4);
+        }
+
+        /* Tam Ekran Butonu */
+        .fs-action-btn {
+            position: fixed;
+            bottom: 8px;
+            right: 8px;
+            background: #121218;
+            color: #ff0055;
+            border: 2px solid #ff0055;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255,0,85,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 999;
+        }
+        .fs-action-btn:hover {
+            background: #ff0055;
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        /* Küçük Mobil Ekranlar İçin Otomatik Uyum */
+        @media (max-width: 600px) {
+            .dashboard {
+                max-width: 100%;
+                gap: 6px;
+            }
+            .gear-display {
+                font-size: 4rem;
+            }
+            .speed-value {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <!-- 1. Hız -->
+        <div class="hud-panel speed-card">
+            <div class="hud-title">ANLIK HIZ</div>
+            <div id="speed" class="speed-value">0</div>
+            <div class="speed-unit">KM/H</div>
+        </div>
+
+        <!-- 2. Merkez Vites Göstergesi -->
+        <div class="hud-panel gear-card" id="gear-card">
+            <div class="hud-title">VİTES</div>
+            <div id="gear" class="gear-display">N</div>
+        </div>
+
+        <!-- 3. Pedallar -->
+        <div class="hud-panel pedal-card">
+            <div class="pedal-group">
+                <div class="pedal-info"><span>GAZ</span><span id="accel-text">0%</span></div>
+                <div class="bar-shell"><div id="accel-fill" class="bar-fill"></div></div>
+            </div>
+            <div class="pedal-group">
+                <div class="pedal-info"><span>FREN</span><span id="brake-text">0%</span></div>
+                <div class="bar-shell"><div id="brake-fill" class="bar-fill"></div></div>
+            </div>
+        </div>
+
+        <!-- 4. Sol Lastikler (Ön Sol / Arka Sol) -->
+        <div class="hud-panel tire-left-card">
+            <div class="hud-title">SOL LASTİK (°C)</div>
+            <div class="tire-split-grid">
+                <div class="tire-box"><small style="color:#666; font-size:0.55rem;">ÖN</small><span id="fl">0°</span></div>
+                <div class="tire-box"><small style="color:#666; font-size:0.55rem;">ARKA</small><span id="rl">0°</span></div>
+            </div>
+        </div>
+
+        <!-- 5. Sağ Lastikler (Ön Sağ / Arka Sağ) -->
+        <div class="hud-panel tire-right-card">
+            <div class="hud-title">SAĞ LASTİK (°C)</div>
+            <div class="tire-split-grid">
+                <div class="tire-box"><small style="color:#666; font-size:0.55rem;">ÖN</small><span id="fr">0°</span></div>
+                <div class="tire-box"><small style="color:#666; font-size:0.55rem;">ARKA</small><span id="rr">0°</span></div>
+            </div>
+        </div>
+
+        <!-- 6. RPM Çubuğu (En Alt Tam Genişlik) -->
+        <div class="hud-panel rpm-card">
+            <div class="rpm-header">
+                <span>MOTOR DEVRİ</span>
+                <span><strong id="rpm" style="color:#fff;">0</strong> / <span id="max-rpm">0</span> RPM</span>
+            </div>
+            <div class="rpm-track">
+                <div id="rpm-fill" class="rpm-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tam Ekran Butonu -->
+    <button class="fs-action-btn" id="fs-btn" title="Tam Ekran">⛶</button>
+
+    <script>
+        async function fetchTelemetry() {
+            try {
+                let response = await fetch('/data');
+                if (!response.ok) return;
+                let data = await response.json();
+
+                document.getElementById('gear').innerText = data.gear;
+                document.getElementById('speed').innerText = data.speed;
+                document.getElementById('rpm').innerText = data.rpm;
+                document.getElementById('max-rpm').innerText = data.max_rpm;
+
+                // Pedallar
+                document.getElementById('accel-text').innerText = data.accel + '%';
+                document.getElementById('accel-fill').style.width = data.accel + '%';
+
+                document.getElementById('brake-text').innerText = data.brake + '%';
+                document.getElementById('brake-fill').style.width = data.brake + '%';
+
+                // Lastikler
+                document.getElementById('fl').innerText = data.fl + '°';
+                document.getElementById('fr').innerText = data.fr + '°';
+                document.getElementById('rl').innerText = data.rl + '°';
+                document.getElementById('rr').innerText = data.rr + '°';
+
+                // Devir ve Agresif Redline Flash Efekti
+                let currentRpm = data.rpm;
+                let maxRpm = data.max_rpm > 0 ? data.max_rpm : 8000;
+                let rpmPercent = Math.min((currentRpm / maxRpm) * 100, 100);
+
+                let rpmFill = document.getElementById('rpm-fill');
+                let gearCard = document.getElementById('gear-card');
+                rpmFill.style.width = rpmPercent + '%';
+
+                if (rpmPercent > 88) {
+                    let flashState = Math.floor(Date.now() / 120) % 2;
+                    if (flashState === 1 && data.gear !== "N" && data.gear !== "R") {
+                        gearCard.classList.add('redline-flash');
+                    } else {
+                        gearCard.classList.remove('redline-flash');
+                    }
+                } else {
+                    gearCard.classList.remove('redline-flash');
+                }
+
+            } catch (error) {}
+        }
+
+        setInterval(fetchTelemetry, 50);
+
+        // Ekran Kararmasını Engelleyen Güç Sinyali Döngüsü
+        const antiSleepShield = document.createElement('div');
+        antiSleepShield.style.position = 'absolute';
+        antiSleepShield.style.width = '1px';
+        antiSleepShield.style.height = '1px';
+        antiSleepShield.style.opacity = '0.001';
+        antiSleepShield.style.pointerEvents = 'none';
+        document.body.appendChild(antiSleepShield);
+
+        setInterval(() => {
+            antiSleepShield.innerText = Math.random();
+        }, 3000);
+
+        // Tam Ekran Kontrolü
+        const fsBtn = document.getElementById('fs-btn');
+        fsBtn.addEventListener('click', async () => {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                    fsBtn.innerText = "✕";
+                } else {
+                    if (document.exitFullscreen) {
+                        await document.exitFullscreen();
+                    }
+                    fsBtn.innerText = "⛶";
+                }
+            } catch (err) {}
+        });
+    </script>
+</body>
+</html>

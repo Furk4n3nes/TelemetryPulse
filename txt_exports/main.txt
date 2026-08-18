@@ -1,0 +1,46 @@
+Not: Bu dosya ana uygulama akışını yönetir. UDP alıcısından gelen paketleri alır, parser ile çözer ve terminalde canlı telemetry bilgilerini gösterir.
+
+Dosya: main.py
+
+from udp_receiver import UDPReceiver
+from telemetry.telemetry_parser import TelemetryParser
+
+
+def main():
+
+    # UDP alıcısını başlat
+    receiver = UDPReceiver(port=8000)
+
+    # Parser oluştur
+    parser = TelemetryParser()
+
+    print("==============================================")
+    print("   FORZA HORIZON 6 TELEMETRY")
+    print("==============================================")
+    print("Çıkmak için CTRL + C\n")
+
+    try:
+        while True:
+
+            # UDP paketini al
+            packet = receiver.receive()
+
+            # Paketi çöz
+            telemetry = parser.parse(packet)
+
+            # Tek satırda güncelle
+            print(
+                f"\r"
+                f"Hız: {telemetry.speed:6.1f} km/h | "
+                f"RPM: {telemetry.currentRPM:7.0f} | "
+                f"Max RPM: {telemetry.engineMaxRPM:7.0f}",
+                end="",
+                flush=True
+            )
+
+    except KeyboardInterrupt:
+        print("\n\nProgram sonlandırıldı.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,12 @@
+==============================================
+   FORZA HORIZON 6 TELEMETRY  (demo)
+==============================================
+
+Vites:  3 | Hız: 128.3 km/h | RPM: 5300 | Max RPM: 7000
+
+[DEBUG] packet(64): 01000000aabbccddeeff00112233445566778899aabbccddeeff0011223344
+[DEBUG] gear_raw=3 gear=3 speed=128.30 RPM=5300
+
+This is a demo placeholder screenshot showing the terminal output.
+
+To generate a PNG image of this demo, run the script `tools/generate_demo_screenshot.py` (requires Pillow).

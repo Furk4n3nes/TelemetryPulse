@@ -1,0 +1,13 @@
+import socket
+
+class UDPReceiver:
+
+    def __init__(self, port=8000):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.bind(("0.0.0.0", port))
+
+        print(f"UDP Receiver başladı. Port: {port}")
+
+    def receive(self):
+        data, addr = self.socket.recvfrom(65535)
+        return data

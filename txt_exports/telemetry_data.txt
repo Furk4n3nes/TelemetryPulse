@@ -1,0 +1,86 @@
+Not: Bu dosya araç telemetri verilerini saklamak için veri yapısını tanımlar. Hız, RPM, lastik sıcaklığı, sürüş bilgileri ve diğer yarış verilerini içerir.
+
+Dosya: telemetry/telemetry_data.py
+
+from dataclasses import dataclass
+
+
+@dataclass
+class TelemetryData:
+    # Race
+    isRaceOn: int = 0
+    timestamp: int = 0
+
+    # Engine
+    engineMaxRPM: float = 0.0
+    engineIdleRPM: float = 0.0
+    currentRPM: float = 0.0
+
+    # Acceleration
+    accelerationX: float = 0.0
+    accelerationY: float = 0.0
+    accelerationZ: float = 0.0
+
+    # Velocity
+    velocityX: float = 0.0
+    velocityY: float = 0.0
+    velocityZ: float = 0.0
+
+    # Angular Velocity
+    angularVelocityX: float = 0.0
+    angularVelocityY: float = 0.0
+    angularVelocityZ: float = 0.0
+
+    # Orientation
+    yaw: float = 0.0
+    pitch: float = 0.0
+    roll: float = 0.0
+
+    # Suspension
+    suspensionFL: float = 0.0
+    suspensionFR: float = 0.0
+    suspensionRL: float = 0.0
+    suspensionRR: float = 0.0
+
+    # Speed
+    speed: float = 0.0
+
+    # Engine Output
+    power: float = 0.0
+    torque: float = 0.0
+
+    # Tire
+    tireTempFL: float = 0.0
+    tireTempFR: float = 0.0
+    tireTempRL: float = 0.0
+    tireTempRR: float = 0.0
+
+    # Turbo
+    boost: float = 0.0
+
+    # Fuel
+    fuel: float = 0.0
+
+    # Race
+    distanceTraveled: float = 0.0
+    bestLap: float = 0.0
+    lastLap: float = 0.0
+    currentLap: float = 0.0
+    currentRaceTime: float = 0.0
+
+    lapNumber: int = 0
+    racePosition: int = 0
+
+    # Inputs
+    accel: int = 0
+    brake: int = 0
+    clutch: int = 0
+    handBrake: int = 0
+
+    gear: int = 0
+    steer: int = 0
+
+    normalizedDrivingLine: int = 0
+    normalizedAIBrakeDifference: int = 0
+    # Raw gear byte as received from the packet (0-255)
+    gear_raw: int = 0
